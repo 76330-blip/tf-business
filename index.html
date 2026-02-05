@@ -705,7 +705,7 @@ body::before {
 const USER_ID = "000000004";
 const STORAGE_KEY = "tf_worker_url";
 
-let WORKER_URL = localStorage.getItem(STORAGE_KEY) || "";
+let WORKER_URL = localStorage.getItem(STORAGE_KEY) || "https://tf-api.camenadoo.workers.dev";
 let productsData = [];
 let notifsData = { new: [], old: [] };
 let categories = [];
