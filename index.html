@@ -6,830 +6,952 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#00695C">
-<title>TF Business v2.0.1</title>
+<title>TF Business v3.0.0</title>
 <link rel="manifest" href="manifest.json">
-<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Noto+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Noto+Sans:wght@400;600;700&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 <style>
-*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
-:root{
-  --primary:#00695C;
-  --primary-light:#009688;
-  --primary-dark:#004D40;
-  --accent:#FFC107;
-  --accent-text:#000;
-  --danger:#f53d3d;
-  --pink:#E91E63;
-  --orange:#FF5722;
-  --green:#32db64;
-  --bg:#f4f4f4;
-  --bg-white:#ffffff;
-  --bg-toolbar:#00695C;
-  --text-dark:#222;
-  --text-black:#000;
-  --text-secondary:#666;
-  --text-light:#999;
-  --border-color:#e0e0e0;
-  --border-light:#BDBDBD;
-  --shadow:0 2px 2px 0 rgba(0,0,0,0.14),0 3px 1px -2px rgba(0,0,0,0.2),0 1px 5px 0 rgba(0,0,0,0.12);
-  --toolbar-h:56px;
-  --safe-top:env(safe-area-inset-top,0px);
-  --safe-bottom:env(safe-area-inset-bottom,0px);
-}
-html{font-size:16px;-webkit-tap-highlight-color:transparent}
-body{
-  font-family:'Roboto','Noto Sans','Helvetica Neue',sans-serif;
-  background:var(--bg);
-  color:var(--text-dark);
-  min-height:100dvh;
-  overflow-x:hidden;
-  font-size:1rem;
-}
-a{color:var(--primary-light);text-decoration:none}
-
-/* ===== TOOLBAR ===== */
-.toolbar{
-  position:sticky;top:0;z-index:100;
-  height:var(--toolbar-h);
-  padding-top:var(--safe-top);
-  background:var(--bg-toolbar);
-  display:flex;align-items:center;
-  padding-left:8px;padding-right:8px;
-  box-shadow:0 2px 4px rgba(0,0,0,0.2);
-}
-.toolbar .menu-btn{
-  width:48px;height:48px;
-  display:flex;align-items:center;justify-content:center;
-  color:#fff;font-size:24px;cursor:pointer;
-  border:none;background:none;border-radius:50%;
-}
-.toolbar .menu-btn:active{background:rgba(255,255,255,0.15);transform:scale(0.95)}
-.toolbar .title{
-  flex:1;color:#fff;
-  font-size:1.15rem;font-weight:400;
-  margin-left:8px;
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-}
-.toolbar .toolbar-btns{display:flex;align-items:center;gap:4px}
-.toolbar .toolbar-btns .t-btn{
-  width:44px;height:44px;
-  display:flex;align-items:center;justify-content:center;
-  color:#fff;font-size:22px;cursor:pointer;
-  border:none;background:none;border-radius:50%;position:relative;
-}
-.toolbar .toolbar-btns .t-btn:active{background:rgba(255,255,255,0.15);transform:scale(0.95)}
-.t-btn .badge-dot{
-  position:absolute;top:8px;right:8px;
-  width:8px;height:8px;border-radius:50%;
-  background:var(--orange);
+/* ===== VARIABLES ===== */
+:root {
+  --toolbar: #00695C;
+  --toolbar-dark: #004D40;
+  --accent: #009688;
+  --accent-light: #4DB6AC;
+  --btn-primary: #FFC107;
+  --btn-primary-text: #1a1a1a;
+  --danger: #FF5722;
+  --badge: #E91E63;
+  --bg: #f5f5f5;
+  --card-bg: #ffffff;
+  --text-primary: #212121;
+  --text-secondary: #616161;
+  --text-muted: #9E9E9E;
+  --border: #E0E0E0;
+  --success: #4CAF50;
+  --font-main: 'Roboto', 'Noto Sans', sans-serif;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
 }
 
-/* ===== SIDE MENU ===== */
-.menu-overlay{
-  position:fixed;inset:0;z-index:200;
-  background:rgba(0,0,0,0.4);
-  display:none;opacity:0;
-  transition:opacity 0.3s;
+/* ===== RESET ===== */
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; overflow: hidden; }
+body {
+  font-family: var(--font-main);
+  background: var(--bg);
+  color: var(--text-primary);
+  font-size: 15px;
+  line-height: 1.5;
 }
-.menu-overlay.open{display:block;opacity:1}
-.side-menu{
-  position:fixed;top:0;left:-280px;bottom:0;z-index:201;
-  width:280px;
-  background:var(--bg-white);
-  transition:left 0.3s cubic-bezier(0.4,0,0.2,1);
-  box-shadow:2px 0 12px rgba(0,0,0,0.3);
-  display:flex;flex-direction:column;
-  overflow-y:auto;
-}
-.side-menu.open{left:0}
-.menu-header{
-  background:var(--bg-toolbar);
-  padding:24px 16px 16px;
-  padding-top:calc(24px + var(--safe-top));
-  color:#fff;
-  min-height:120px;
-  display:flex;flex-direction:column;justify-content:flex-end;
-}
-.menu-header .menu-app-name{font-size:1.3rem;font-weight:500;margin-bottom:4px}
-.menu-header .menu-user{font-size:0.85rem;opacity:0.8}
-.menu-items{flex:1;padding:8px 0}
-.menu-item{
-  display:flex;align-items:center;gap:16px;
-  padding:14px 16px;
-  cursor:pointer;
-  color:var(--text-dark);
-  font-size:0.95rem;
-  transition:background 0.15s;
-  min-height:48px;
-}
-.menu-item:active{background:rgba(0,0,0,0.06);transform:scale(0.98)}
-.menu-item.active{background:rgba(0,105,92,0.08);color:var(--primary)}
-.menu-item .mi-icon{
-  width:24px;height:24px;
-  display:flex;align-items:center;justify-content:center;
-  color:var(--text-secondary);font-size:22px;
-}
-.menu-item.active .mi-icon{color:var(--primary)}
-.menu-divider{height:1px;background:var(--border-color);margin:8px 0}
 
-/* ===== PAGES ===== */
-.page{display:none}
-.page.active{display:block;animation:pageFade 0.2s ease}
-@keyframes pageFade{from{opacity:0}to{opacity:1}}
+/* ===== AUTH SCREEN ===== */
+.auth-screen {
+  position: fixed; inset: 0; z-index: 1000;
+  background: linear-gradient(135deg, var(--toolbar-dark) 0%, var(--toolbar) 40%, var(--accent) 100%);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 24px;
+  transition: opacity 0.4s, transform 0.4s;
+}
+.auth-screen.hidden { opacity: 0; pointer-events: none; transform: scale(1.05); }
+
+.auth-logo {
+  width: 80px; height: 80px; border-radius: 20px;
+  background: rgba(255,255,255,0.15); backdrop-filter: blur(10px);
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 16px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+}
+.auth-logo .material-icons { font-size: 40px; color: #fff; }
+
+.auth-title { color: #fff; font-size: 24px; font-weight: 700; margin-bottom: 4px; text-align: center; }
+.auth-subtitle { color: rgba(255,255,255,0.7); font-size: 14px; margin-bottom: 32px; text-align: center; }
+
+.auth-card {
+  width: 100%; max-width: 380px;
+  background: #fff; border-radius: 16px;
+  padding: 28px 24px; box-shadow: 0 12px 40px rgba(0,0,0,0.25);
+}
+.auth-card h2 { font-size: 20px; font-weight: 600; text-align: center; margin-bottom: 24px; color: var(--text-primary); }
+
+.auth-field { margin-bottom: 16px; }
+.auth-field label {
+  display: block; font-size: 13px; font-weight: 500;
+  color: var(--text-secondary); margin-bottom: 6px;
+}
+.auth-field input {
+  width: 100%; height: 48px; border: 2px solid var(--border);
+  border-radius: 10px; padding: 0 14px; font-size: 16px;
+  font-family: var(--font-main); color: var(--text-primary);
+  background: #FAFAFA; outline: none; transition: border-color 0.2s;
+}
+.auth-field input:focus { border-color: var(--accent); background: #fff; }
+.auth-field input.error { border-color: var(--danger); }
+.auth-field .field-error {
+  font-size: 12px; color: var(--danger); margin-top: 4px;
+  min-height: 16px;
+}
+
+.auth-btn {
+  width: 100%; height: 50px; border: none; border-radius: 10px;
+  background: var(--btn-primary); color: var(--btn-primary-text);
+  font-size: 16px; font-weight: 600; font-family: var(--font-main);
+  cursor: pointer; margin-top: 8px;
+  transition: transform 0.1s, box-shadow 0.2s;
+  box-shadow: 0 4px 12px rgba(255,193,7,0.3);
+  min-height: 50px;
+}
+.auth-btn:active { transform: scale(0.95); }
+.auth-btn:disabled { opacity: 0.6; transform: none; }
+
+.auth-switch {
+  text-align: center; margin-top: 20px; font-size: 14px; color: var(--text-secondary);
+}
+.auth-switch a {
+  color: var(--accent); text-decoration: none; font-weight: 500;
+  display: inline-block; min-height: 44px; line-height: 44px;
+}
+.auth-switch a:active { opacity: 0.7; }
+
+.auth-error {
+  background: #FFF3F0; border: 1px solid #FFCDD2; border-radius: 8px;
+  padding: 10px 14px; margin-bottom: 16px; font-size: 13px;
+  color: var(--danger); display: none; text-align: center;
+}
+.auth-error.visible { display: block; }
+
+.auth-visitor {
+  margin-top: 12px;
+}
+
+/* ===== LOADER ===== */
+.loader-overlay {
+  position: fixed; inset: 0; z-index: 9999;
+  background: rgba(0,0,0,0.4); display: none;
+  align-items: center; justify-content: center;
+}
+.loader-overlay.visible { display: flex; }
+.loader-box {
+  background: #fff; border-radius: 14px; padding: 28px 36px;
+  text-align: center; box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+}
+.loader-spinner {
+  width: 36px; height: 36px; border: 3px solid var(--border);
+  border-top-color: var(--accent); border-radius: 50%;
+  animation: spin 0.8s linear infinite; margin: 0 auto 12px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.loader-text { font-size: 14px; color: var(--text-secondary); }
+
+/* ===== APP SHELL ===== */
+.app { display: none; flex-direction: column; height: 100%; }
+.app.visible { display: flex; }
+
+/* Toolbar */
+.toolbar {
+  background: var(--toolbar); color: #fff;
+  padding: calc(var(--safe-top) + 8px) 12px 8px;
+  display: flex; align-items: center; min-height: 56px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15); z-index: 100;
+  flex-shrink: 0;
+}
+.toolbar-menu {
+  width: 44px; height: 44px; background: none; border: none;
+  color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center;
+  border-radius: 50%; transition: background 0.2s;
+}
+.toolbar-menu:active { background: rgba(255,255,255,0.15); transform: scale(0.95); }
+.toolbar-title { flex: 1; font-size: 18px; font-weight: 500; margin-left: 8px; }
+.toolbar-badge {
+  position: relative; width: 44px; height: 44px;
+  background: none; border: none; color: #fff; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 50%;
+}
+.toolbar-badge:active { background: rgba(255,255,255,0.15); transform: scale(0.95); }
+.toolbar-badge .badge-count {
+  position: absolute; top: 4px; right: 4px;
+  background: var(--badge); color: #fff; font-size: 10px; font-weight: 700;
+  min-width: 18px; height: 18px; border-radius: 9px;
+  display: flex; align-items: center; justify-content: center;
+  padding: 0 4px;
+}
+
+/* Sidemenu */
+.sidemenu-overlay {
+  position: fixed; inset: 0; z-index: 200;
+  background: rgba(0,0,0,0.5); opacity: 0; pointer-events: none;
+  transition: opacity 0.3s;
+}
+.sidemenu-overlay.open { opacity: 1; pointer-events: auto; }
+
+.sidemenu {
+  position: fixed; top: 0; left: -280px; bottom: 0; width: 280px;
+  background: #fff; z-index: 201; transition: left 0.3s ease;
+  display: flex; flex-direction: column;
+  box-shadow: 4px 0 16px rgba(0,0,0,0.15);
+}
+.sidemenu.open { left: 0; }
+
+.sidemenu-header {
+  background: var(--toolbar); padding: calc(var(--safe-top) + 20px) 20px 20px;
+  color: #fff;
+}
+.sidemenu-avatar {
+  width: 56px; height: 56px; border-radius: 50%;
+  background: rgba(255,255,255,0.2); display: flex;
+  align-items: center; justify-content: center; margin-bottom: 12px;
+}
+.sidemenu-avatar .material-icons { font-size: 30px; color: #fff; }
+.sidemenu-name { font-size: 16px; font-weight: 600; }
+.sidemenu-phone { font-size: 13px; color: rgba(255,255,255,0.7); margin-top: 2px; }
+.sidemenu-id { font-size: 12px; color: rgba(255,255,255,0.5); margin-top: 2px; }
+
+.sidemenu-items { flex: 1; overflow-y: auto; padding: 8px 0; }
+.sidemenu-item {
+  display: flex; align-items: center; padding: 0 20px;
+  min-height: 48px; cursor: pointer; transition: background 0.15s;
+  border: none; background: none; width: 100%; text-align: left;
+  font-family: var(--font-main); font-size: 14px; color: var(--text-primary);
+}
+.sidemenu-item:active { background: #f0f0f0; transform: scale(0.98); }
+.sidemenu-item .material-icons { font-size: 22px; color: var(--text-secondary); margin-right: 16px; width: 24px; text-align: center; }
+.sidemenu-item.active { color: var(--accent); }
+.sidemenu-item.active .material-icons { color: var(--accent); }
+.sidemenu-divider { height: 1px; background: var(--border); margin: 8px 0; }
+
+.sidemenu-item.logout { color: var(--danger); }
+.sidemenu-item.logout .material-icons { color: var(--danger); }
+
+/* Content area */
+.content { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; }
 
 /* ===== HOME PAGE ===== */
-.home-content{text-align:center;padding:0}
-.home-logo{height:140px;margin:20px auto 0;display:block}
-.home-desc{
-  margin:20px 0 10px;
-  font-size:1rem;font-weight:600;
-  color:var(--primary-light);
+.home-grid {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 12px; padding: 16px;
 }
-.home-grid{
-  display:flex;flex-wrap:wrap;
-  justify-content:center;
-  margin:5px 0 10px;gap:6px;
-  padding:0 8px;
+.home-card {
+  background: var(--card-bg); border-radius: 12px;
+  padding: 16px; text-align: center; cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  transition: transform 0.1s, box-shadow 0.2s;
+  min-height: 100px; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
 }
-.home-card{
-  width:calc(33.33% - 8px);max-width:150px;
-  height:85px;
-  background:#fff;
-  display:flex;flex-direction:column;
-  align-items:center;justify-content:center;
-  border-radius:0;
-  box-shadow:inset 0 0 1px 0 #253380;
-  cursor:pointer;
-  text-align:center;
-  padding:8px 4px;
-}
-.home-card:active{transform:scale(0.95);background:#f5f5f5}
-.home-card .hc-icon{font-size:28px;color:var(--primary);opacity:0.8;margin-bottom:4px}
-.home-card .hc-label{font-size:0.72rem;color:var(--text-dark);line-height:1.2}
-.home-values{padding:8px 16px}
-.home-val-row{
-  display:flex;justify-content:space-between;
-  padding:8px 0;
-  border-bottom:1px solid var(--border-light);
-  font-size:0.95rem;
-}
-.home-val-row .hv-label{color:var(--text-secondary)}
-.home-val-row .hv-value{font-size:1.1rem;font-weight:600}
-.hv-pink{color:var(--pink)}
-.hv-teal{color:var(--primary-light)}
-.hv-orange{color:var(--orange);text-decoration:underline}
-.hv-green{color:#4CAF50;text-decoration:underline}
-.home-app{font-style:italic;font-size:0.85rem;margin:5px 10px;color:#3e4b90;text-align:center;padding-bottom:16px}
+.home-card:active { transform: scale(0.95); box-shadow: 0 1px 4px rgba(0,0,0,0.1); }
+.home-card .material-icons { font-size: 36px; color: var(--accent); margin-bottom: 8px; }
+.home-card-label { font-size: 13px; font-weight: 500; color: var(--text-secondary); }
+.home-card-value { font-size: 20px; font-weight: 700; color: var(--text-primary); margin-top: 4px; }
 
-/* ===== PRODUCT / CATALOG ===== */
-.segment-bar{
-  display:flex;
-  background:var(--primary);
+.home-welcome {
+  padding: 20px 16px 8px; font-size: 16px; color: var(--text-secondary);
 }
-.segment-btn{
-  flex:1;
-  height:44px;
-  display:flex;align-items:center;justify-content:center;
-  font-size:0.9rem;
-  text-transform:uppercase;
-  color:#fff;
-  background:var(--primary);
-  border:none;
-  border-bottom:3px solid transparent;
-  cursor:pointer;
-  font-weight:500;
-  font-family:inherit;
-}
-.segment-btn:active{transform:scale(0.95)}
-.segment-btn.active{border-bottom-color:var(--pink)}
+.home-welcome strong { color: var(--text-primary); }
 
-.product-list{padding:0}
-.product-item{
-  display:flex;
-  align-items:flex-start;
-  padding:10px 16px;
-  border-bottom:1px solid var(--border-color);
-  background:#fff;
-  cursor:pointer;
-  gap:16px;
-  min-height:48px;
+/* ===== CATALOG ===== */
+.product-list { padding: 12px 16px 100px; }
+.product-card {
+  background: var(--card-bg); border-radius: 12px;
+  margin-bottom: 12px; overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  display: flex; cursor: pointer;
+  transition: transform 0.1s;
+  min-height: 110px;
 }
-.product-item:active{background:#f0f0f0;transform:scale(0.98)}
-.product-thumb{
-  width:120px;height:100px;
-  border-radius:10px;
-  overflow:hidden;
-  flex-shrink:0;
-  background:var(--bg);
-  display:flex;align-items:center;justify-content:center;
+.product-card:active { transform: scale(0.97); }
+.product-img {
+  width: 120px; min-height: 100px; background: #f0f0f0;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; overflow: hidden;
 }
-.product-thumb img{width:100%;height:100%;object-fit:cover}
-.product-thumb .thumb-placeholder{font-size:2rem;color:var(--border-light)}
-.product-info{
-  flex:1;
-  display:flex;flex-direction:column;
-  justify-content:center;
-  min-height:100px;
+.product-img img { width: 100%; height: 100%; object-fit: cover; }
+.product-img .material-icons { font-size: 40px; color: var(--text-muted); }
+.product-info { padding: 12px; flex: 1; display: flex; flex-direction: column; justify-content: center; }
+.product-category { font-size: 11px; color: var(--accent); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+.product-name { font-size: 15px; font-weight: 600; margin-top: 4px; color: var(--text-primary); }
+.product-price-row { display: flex; align-items: center; gap: 10px; margin-top: 8px; }
+.product-price {
+  background: var(--btn-primary); color: var(--btn-primary-text);
+  padding: 3px 10px; border-radius: 6px; font-size: 14px; font-weight: 700;
 }
-.product-info .pi-name{
-  font-size:1rem;font-weight:600;
-  color:var(--primary-light);
-  margin-bottom:4px;
-}
-.product-info .pi-category{
-  font-size:0.8rem;
-  color:var(--text-secondary);
-  margin-bottom:8px;
-}
-.product-info .pi-price-row{
-  display:flex;align-items:center;gap:12px;
-}
-.pi-price{
-  display:inline-block;
-  background:var(--orange);
-  color:#fff;
-  padding:2px 10px;
-  border-radius:2px;
-  font-size:0.85rem;font-weight:500;
-}
-.pi-lp{
-  font-size:0.85rem;font-weight:600;
-  color:var(--primary-light);
-}
+.product-lp { font-size: 12px; color: var(--accent); font-weight: 600; }
 
-/* ===== PRODUCT DETAIL ===== */
-.detail-overlay{
-  position:fixed;inset:0;z-index:200;
-  background:rgba(0,0,0,0.5);
-  display:none;align-items:flex-end;justify-content:center;
+/* Product detail */
+.product-detail {
+  position: fixed; inset: 0; z-index: 300;
+  background: #fff; display: none; flex-direction: column;
 }
-.detail-overlay.open{display:flex}
-.detail-sheet{
-  background:#fff;
-  border-radius:16px 16px 0 0;
-  width:100%;max-width:540px;
-  max-height:90dvh;
-  overflow-y:auto;
-  animation:sheetUp 0.3s ease;
-  padding-bottom:var(--safe-bottom);
+.product-detail.visible { display: flex; }
+.product-detail-header {
+  background: var(--toolbar); color: #fff;
+  padding: calc(var(--safe-top) + 8px) 12px 8px;
+  display: flex; align-items: center; min-height: 56px; flex-shrink: 0;
 }
-@keyframes sheetUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
-.detail-handle{
-  display:flex;justify-content:center;
-  padding:12px 0 4px;
-  cursor:pointer;
+.product-detail-back {
+  display: flex; align-items: center; gap: 4px;
+  background: none; border: none; color: #fff; cursor: pointer;
+  min-width: 44px; min-height: 44px; font-family: var(--font-main); font-size: 15px;
+  padding: 0 8px; border-radius: 8px;
 }
-.detail-handle div{width:40px;height:4px;background:var(--border-light);border-radius:4px}
-.detail-img-wrap{
-  width:100%;aspect-ratio:4/3;
-  background:var(--bg);
-  display:flex;align-items:center;justify-content:center;
-  overflow:hidden;
+.product-detail-back:active { background: rgba(255,255,255,0.15); transform: scale(0.95); }
+.product-detail-title { flex: 1; font-size: 17px; font-weight: 500; margin-left: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.product-detail-body { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+.product-detail-img { width: 100%; max-height: 300px; object-fit: contain; background: #f5f5f5; }
+.product-detail-content { padding: 20px 16px; }
+.product-detail-pname { font-size: 20px; font-weight: 700; }
+.product-detail-cat { font-size: 13px; color: var(--accent); margin-top: 4px; }
+.product-detail-prices { display: flex; align-items: center; gap: 12px; margin-top: 14px; }
+.product-detail-price {
+  background: var(--btn-primary); color: var(--btn-primary-text);
+  padding: 6px 16px; border-radius: 8px; font-size: 18px; font-weight: 700;
 }
-.detail-img-wrap img{width:100%;height:100%;object-fit:contain}
-.detail-body{padding:16px}
-.detail-body .db-category{font-size:0.8rem;color:var(--primary-light);font-weight:600;margin-bottom:4px}
-.detail-body .db-name{font-size:1.25rem;font-weight:700;color:var(--text-dark);margin-bottom:12px}
-.detail-body .db-meta{
-  display:flex;gap:12px;margin-bottom:16px;
-  padding:12px;background:var(--bg);border-radius:8px;
-}
-.db-meta-item{text-align:center;flex:1}
-.db-meta-item .dm-label{font-size:0.7rem;color:var(--text-light);margin-bottom:2px}
-.db-meta-item .dm-value{font-size:1.05rem;font-weight:700}
-.dm-value.price-c{color:var(--orange)}
-.dm-value.lp-c{color:var(--primary-light)}
-.detail-body .db-desc{
-  font-size:0.9rem;color:var(--text-dark);
-  line-height:1.6;
-}
-.db-desc b,.db-desc strong{color:var(--text-black)}
-.db-desc ul{padding-left:20px;margin:8px 0}
-.db-desc li{margin-bottom:6px}
-.db-desc font[color]{color:var(--primary-light) !important}
-.detail-body .db-cart-btn{
-  display:block;width:100%;
-  margin-top:16px;padding:14px;
-  background:var(--accent);color:var(--accent-text);
-  border:none;border-radius:4px;
-  font-size:1rem;font-weight:500;
-  text-transform:uppercase;
-  cursor:pointer;
-  box-shadow:var(--shadow);
-  min-height:48px;
-  font-family:inherit;
-}
-.db-cart-btn:active{transform:scale(0.95);filter:brightness(0.95)}
+.product-detail-lp { font-size: 14px; color: var(--accent); font-weight: 600; }
+.product-detail-desc { margin-top: 20px; font-size: 14px; line-height: 1.6; color: var(--text-secondary); }
+.product-detail-desc img { max-width: 100%; border-radius: 8px; margin: 8px 0; }
 
 /* ===== NOTIFICATIONS ===== */
-.notif-list{padding:0}
-.notif-section{
-  padding:8px 16px 4px;
-  font-size:0.75rem;
-  color:var(--text-light);
-  text-transform:uppercase;
-  letter-spacing:0.05em;
-  background:var(--bg);
+.notif-list { padding: 12px 16px 100px; }
+.notif-empty { text-align: center; padding: 60px 20px; color: var(--text-muted); }
+.notif-empty .material-icons { font-size: 56px; display: block; margin-bottom: 12px; }
+.notif-card {
+  background: var(--card-bg); border-radius: 10px;
+  padding: 14px 16px; margin-bottom: 10px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  transition: transform 0.1s;
+  cursor: pointer;
 }
-.notif-item{
-  display:flex;gap:12px;
-  padding:14px 16px;
-  background:#fff;
-  border-bottom:1px solid var(--border-color);
-  min-height:48px;
-  cursor:pointer;
-}
-.notif-item:active{background:#f5f5f5;transform:scale(0.98)}
-.notif-item.is-new{border-left:3px solid var(--primary-light)}
-.ni-icon{
-  width:40px;height:40px;border-radius:50%;
-  display:flex;align-items:center;justify-content:center;
-  font-size:20px;flex-shrink:0;
-}
-.ni-icon.ni-money{background:#E8F5E9;color:#2E7D32}
-.ni-icon.ni-news{background:#E0F2F1;color:var(--primary)}
-.ni-icon.ni-system{background:#FFF3E0;color:#E65100}
-.ni-icon.ni-other{background:var(--bg);color:var(--text-secondary)}
-.ni-body{flex:1;min-width:0}
-.ni-text{font-size:0.9rem;line-height:1.4;color:var(--text-dark);margin-bottom:2px}
-.ni-type{font-size:0.75rem;color:var(--text-light)}
+.notif-card:active { transform: scale(0.97); }
+.notif-card.unread { border-left: 3px solid var(--accent); }
+.notif-type { font-size: 11px; color: var(--accent); font-weight: 600; text-transform: uppercase; }
+.notif-text { font-size: 14px; margin-top: 4px; color: var(--text-primary); }
+.notif-date { font-size: 12px; color: var(--text-muted); margin-top: 6px; }
 
-/* ===== NEWS (placeholder) ===== */
-.placeholder-page{
-  display:flex;flex-direction:column;
-  align-items:center;justify-content:center;
-  padding:60px 24px;text-align:center;
-}
-.placeholder-page .pp-icon{font-size:48px;color:var(--border-light);margin-bottom:16px}
-.placeholder-page .pp-title{font-size:1.05rem;font-weight:500;color:var(--text-dark);margin-bottom:8px}
-.placeholder-page .pp-text{font-size:0.85rem;color:var(--text-secondary);line-height:1.5}
+/* ===== PAGES ===== */
+.page { display: none; }
+.page.active { display: block; }
 
-/* ===== SETTINGS ===== */
-.settings-list{padding:0}
-.settings-group-title{
-  padding:16px 16px 8px;
-  font-size:0.8rem;font-weight:600;
-  color:var(--primary-light);
+.page-placeholder {
+  text-align: center; padding: 60px 24px; color: var(--text-muted);
 }
-.settings-item{
-  display:flex;align-items:center;justify-content:space-between;
-  padding:14px 16px;
-  background:#fff;
-  border-bottom:1px solid var(--border-color);
-  font-size:0.95rem;
-  min-height:48px;
-}
-.settings-item .si-label{color:var(--text-dark)}
-.settings-item .si-value{color:var(--text-secondary);font-size:0.85rem}
+.page-placeholder .material-icons { font-size: 64px; display: block; margin-bottom: 16px; color: var(--border); }
+.page-placeholder p { font-size: 14px; margin-top: 8px; }
 
-/* ===== LOADING / ERROR ===== */
-.loading{display:flex;flex-direction:column;align-items:center;padding:48px 20px;gap:12px}
-.spinner{
-  width:28px;height:28px;
-  border:3px solid var(--border-color);
-  border-top-color:var(--primary-light);
-  border-radius:50%;
-  animation:spin 0.7s linear infinite;
-}
-@keyframes spin{to{transform:rotate(360deg)}}
-.loading-text{color:var(--text-light);font-size:0.85rem}
-.error-block{
-  margin:16px;padding:16px;
-  background:#FFEBEE;border:1px solid #FFCDD2;
-  border-radius:4px;color:var(--danger);
-  font-size:0.85rem;text-align:center;
-}
-.error-block .retry-btn{
-  display:inline-block;margin-top:10px;
-  padding:8px 24px;min-height:44px;
-  background:var(--accent);color:var(--accent-text);
-  border:none;border-radius:4px;
-  font-size:0.85rem;font-weight:500;
-  cursor:pointer;text-transform:uppercase;
-  box-shadow:var(--shadow);
-}
-.retry-btn:active{transform:scale(0.95)}
-
-/* ===== CONFIG BANNER ===== */
-.config-banner{
-  margin:12px;padding:16px;
-  background:#E0F2F1;
-  border:1px solid #B2DFDB;
-  border-radius:4px;
-}
-.config-banner strong{color:var(--primary)}
-.config-banner p{font-size:0.85rem;color:var(--text-dark);margin-bottom:8px;line-height:1.4}
-.config-banner input{
-  width:100%;padding:10px 12px;
-  border:1px solid var(--border-color);
-  border-radius:4px;font-size:0.85rem;
-  font-family:monospace;
-  margin-bottom:8px;
-}
-.config-banner input:focus{border-color:var(--primary);outline:none}
-.config-banner button{
-  padding:10px 24px;min-height:44px;
-  background:var(--accent);color:var(--accent-text);
-  border:none;border-radius:4px;
-  font-size:0.85rem;font-weight:500;
-  text-transform:uppercase;cursor:pointer;
-  box-shadow:var(--shadow);
-}
-.config-banner button:active{transform:scale(0.95)}
-
-/* ===== STATUS DOT ===== */
-.status-indicator{
-  display:flex;align-items:center;gap:6px;
-  padding:0 12px;
-}
-.s-dot{
-  width:8px;height:8px;border-radius:50%;
-}
-.s-dot.online{background:var(--green);box-shadow:0 0 6px rgba(50,219,100,0.5)}
-.s-dot.offline{background:var(--danger);box-shadow:0 0 6px rgba(245,61,61,0.5)}
-.s-dot.loading{background:var(--accent);animation:pulse 1.5s infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+/* ===== SCROLLBAR ===== */
+.content::-webkit-scrollbar { width: 0; }
+.sidemenu-items::-webkit-scrollbar { width: 0; }
 </style>
 </head>
 <body>
 
-<!-- TOOLBAR -->
-<header class="toolbar" id="toolbar">
-  <button class="menu-btn" onclick="toggleMenu()" aria-label="Меню">
-    <span class="material-icons">menu</span>
-  </button>
-  <div class="title" id="toolbarTitle">Главная</div>
-  <div class="toolbar-btns">
-    <div class="status-indicator"><div class="s-dot loading" id="statusDot"></div></div>
-    <button class="t-btn" onclick="switchPage('notifications')" aria-label="Уведомления">
-      <span class="material-icons">notifications</span>
-      <div class="badge-dot" id="notifDot" style="display:none"></div>
-    </button>
+<!-- ===== LOADER ===== -->
+<div class="loader-overlay" id="loader">
+  <div class="loader-box">
+    <div class="loader-spinner"></div>
+    <div class="loader-text" id="loaderText">Загружаем...</div>
   </div>
-</header>
+</div>
 
-<!-- SIDE MENU -->
-<div class="menu-overlay" id="menuOverlay" onclick="toggleMenu()"></div>
-<nav class="side-menu" id="sideMenu">
-  <div class="menu-header">
-    <div class="menu-app-name">Мир TF</div>
-    <div class="menu-user" id="menuUser">Дистрибьютор</div>
+<!-- ===== AUTH SCREEN ===== -->
+<div class="auth-screen" id="authScreen">
+  <div class="auth-logo">
+    <span class="material-icons">eco</span>
   </div>
-  <div class="menu-items">
-    <div class="menu-item active" onclick="switchPage('home')">
-      <span class="mi-icon material-icons">home</span> Главная
+  <div class="auth-title">TF Business</div>
+  <div class="auth-subtitle">Мир Transfer Factor</div>
+
+  <!-- Login form -->
+  <div class="auth-card" id="loginForm">
+    <h2>Вход</h2>
+    <div class="auth-error" id="loginError"></div>
+    <div class="auth-field">
+      <label>Номер телефона</label>
+      <input type="tel" id="loginPhone" placeholder="+7 (999) 123-45-67" inputmode="tel" autocomplete="tel">
+      <div class="field-error" id="loginPhoneError"></div>
     </div>
-    <div class="menu-item" onclick="switchPage('catalog')">
-      <span class="mi-icon material-icons">apps</span> Каталог
+    <div class="auth-field">
+      <label>Пин-код</label>
+      <input type="password" id="loginPin" placeholder="••••" inputmode="numeric" maxlength="8" autocomplete="current-password">
+      <div class="field-error" id="loginPinError"></div>
     </div>
-    <div class="menu-item" onclick="switchPage('orders')">
-      <span class="mi-icon material-icons">check_circle</span> Документы
+    <button class="auth-btn" id="loginBtn" onclick="doLogin()">Войти</button>
+    <div class="auth-switch">
+      Нет аккаунта? <a href="#" onclick="showRegister(); return false;">Зарегистрироваться</a>
     </div>
-    <div class="menu-item" onclick="switchPage('buyers')">
-      <span class="mi-icon material-icons">people</span> Покупатели
+  </div>
+
+  <!-- Register form -->
+  <div class="auth-card" id="registerForm" style="display:none">
+    <h2>Регистрация</h2>
+    <div class="auth-error" id="registerError"></div>
+    <div class="auth-field">
+      <label>Ваше имя</label>
+      <input type="text" id="regName" placeholder="Иван Иванов" autocomplete="name">
+      <div class="field-error" id="regNameError"></div>
     </div>
-    <div class="menu-item" onclick="switchPage('news')">
-      <span class="mi-icon material-icons">format_align_justify</span> Новости
+    <div class="auth-field">
+      <label>Номер телефона</label>
+      <input type="tel" id="regPhone" placeholder="+7 (999) 123-45-67" inputmode="tel" autocomplete="tel">
+      <div class="field-error" id="regPhoneError"></div>
     </div>
-    <div class="menu-item" onclick="switchPage('notifications')">
-      <span class="mi-icon material-icons">notifications</span> Уведомления
+    <div class="auth-field auth-visitor">
+      <label>ID пригласителя <span style="color:var(--text-muted)">(если есть)</span></label>
+      <input type="text" id="regVisitorId" placeholder="Необязательно" inputmode="numeric">
     </div>
-    <div class="menu-item" onclick="switchPage('articles')">
-      <span class="mi-icon material-icons">local_library</span> База знаний
+    <div class="auth-field">
+      <label>Придумайте пин-код (мин. 4 цифры)</label>
+      <input type="password" id="regPin" placeholder="••••" inputmode="numeric" maxlength="8">
+      <div class="field-error" id="regPinError"></div>
     </div>
-    <div class="menu-item" onclick="switchPage('faq')">
-      <span class="mi-icon material-icons">help</span> Вопросы и ответы
+    <div class="auth-field">
+      <label>Повторите пин-код</label>
+      <input type="password" id="regPinConfirm" placeholder="••••" inputmode="numeric" maxlength="8">
+      <div class="field-error" id="regPinConfirmError"></div>
     </div>
-    <div class="menu-divider"></div>
-    <div class="menu-item" onclick="switchPage('settings')">
-      <span class="mi-icon material-icons">settings</span> Настройки
+    <button class="auth-btn" id="registerBtn" onclick="doRegister()">Создать аккаунт</button>
+    <div class="auth-switch">
+      Есть аккаунт? <a href="#" onclick="showLogin(); return false;">Войти</a>
     </div>
+  </div>
+</div>
+
+<!-- ===== SIDEMENU ===== -->
+<div class="sidemenu-overlay" id="menuOverlay" onclick="closeMenu()"></div>
+<nav class="sidemenu" id="sidemenu">
+  <div class="sidemenu-header">
+    <div class="sidemenu-avatar"><span class="material-icons">person</span></div>
+    <div class="sidemenu-name" id="menuUserName">—</div>
+    <div class="sidemenu-phone" id="menuUserPhone">—</div>
+    <div class="sidemenu-id" id="menuUserId"></div>
+  </div>
+  <div class="sidemenu-items">
+    <button class="sidemenu-item active" data-page="home" onclick="navigateTo('home')">
+      <span class="material-icons">home</span> Главная
+    </button>
+    <button class="sidemenu-item" data-page="catalog" onclick="navigateTo('catalog')">
+      <span class="material-icons">shopping_bag</span> Каталог
+    </button>
+    <button class="sidemenu-item" data-page="notifications" onclick="navigateTo('notifications')">
+      <span class="material-icons">notifications</span> Уведомления
+    </button>
+    <div class="sidemenu-divider"></div>
+    <button class="sidemenu-item" data-page="documents" onclick="navigateTo('documents')">
+      <span class="material-icons">description</span> Документы
+    </button>
+    <button class="sidemenu-item" data-page="customers" onclick="navigateTo('customers')">
+      <span class="material-icons">group</span> Покупатели
+    </button>
+    <button class="sidemenu-item" data-page="news" onclick="navigateTo('news')">
+      <span class="material-icons">newspaper</span> Новости
+    </button>
+    <button class="sidemenu-item" data-page="knowledge" onclick="navigateTo('knowledge')">
+      <span class="material-icons">menu_book</span> База знаний
+    </button>
+    <div class="sidemenu-divider"></div>
+    <button class="sidemenu-item" data-page="settings" onclick="navigateTo('settings')">
+      <span class="material-icons">settings</span> Настройки
+    </button>
+    <button class="sidemenu-item logout" onclick="doLogout()">
+      <span class="material-icons">logout</span> Выйти
+    </button>
   </div>
 </nav>
 
-<!-- CONFIG BANNER -->
-<div class="config-banner" id="configBanner" style="display:none">
-  <p><strong>⚙️ Настройка API</strong><br>Введите URL вашего Cloudflare Worker:</p>
-  <input type="text" id="workerUrlInput" placeholder="https://tf-api.ваш-аккаунт.workers.dev">
-  <button onclick="saveWorkerUrl()">Сохранить</button>
-</div>
+<!-- ===== APP ===== -->
+<div class="app" id="app">
+  <!-- Toolbar -->
+  <header class="toolbar">
+    <button class="toolbar-menu" onclick="openMenu()">
+      <span class="material-icons">menu</span>
+    </button>
+    <div class="toolbar-title" id="toolbarTitle">TF Business</div>
+    <button class="toolbar-badge" onclick="navigateTo('notifications')">
+      <span class="material-icons">notifications_none</span>
+      <span class="badge-count" id="notifBadge" style="display:none">0</span>
+    </button>
+  </header>
 
-<!-- PAGE: HOME -->
-<div class="page active" id="pageHome">
-  <div class="home-content">
-    <img class="home-logo" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 140'%3E%3Crect fill='%23E0F2F1' width='200' height='140' rx='8'/%3E%3Ctext x='100' y='60' text-anchor='middle' font-family='sans-serif' font-size='18' font-weight='bold' fill='%2300695C'%3E4Life%3C/text%3E%3Ctext x='100' y='85' text-anchor='middle' font-family='sans-serif' font-size='12' fill='%23009688'%3ETransfer Factor%3C/text%3E%3Ctext x='100' y='110' text-anchor='middle' font-family='sans-serif' font-size='24'%3E💎%3C/text%3E%3C/svg%3E" alt="TF">
-    <div class="home-desc">TF Business</div>
-    <div class="home-grid" id="homeGrid">
-      <div class="home-card" onclick="switchPage('catalog')">
-        <span class="hc-icon material-icons">shopping_cart</span>
-        <span class="hc-label">Каталог</span>
-      </div>
-      <div class="home-card" onclick="switchPage('orders')">
-        <span class="hc-icon material-icons">receipt</span>
-        <span class="hc-label">Документы</span>
-      </div>
-      <div class="home-card" onclick="switchPage('notifications')">
-        <span class="hc-icon material-icons">notifications</span>
-        <span class="hc-label">Уведомления</span>
-      </div>
-      <div class="home-card" onclick="switchPage('news')">
-        <span class="hc-icon material-icons">article</span>
-        <span class="hc-label">Новости</span>
-      </div>
-      <div class="home-card" onclick="switchPage('buyers')">
-        <span class="hc-icon material-icons">group</span>
-        <span class="hc-label">Покупатели</span>
-      </div>
-      <div class="home-card" onclick="switchPage('settings')">
-        <span class="hc-icon material-icons">settings</span>
-        <span class="hc-label">Настройки</span>
+  <!-- Content -->
+  <div class="content">
+    <!-- HOME -->
+    <div class="page active" id="page-home">
+      <div class="home-welcome">Добро пожаловать, <strong id="homeUserName">—</strong>!</div>
+      <div class="home-grid">
+        <div class="home-card" onclick="navigateTo('catalog')">
+          <span class="material-icons">shopping_bag</span>
+          <div class="home-card-label">Товаров</div>
+          <div class="home-card-value" id="homeProductCount">—</div>
+        </div>
+        <div class="home-card" onclick="navigateTo('notifications')">
+          <span class="material-icons">notifications</span>
+          <div class="home-card-label">Уведомлений</div>
+          <div class="home-card-value" id="homeNotifCount">—</div>
+        </div>
+        <div class="home-card" onclick="navigateTo('documents')">
+          <span class="material-icons">description</span>
+          <div class="home-card-label">Документы</div>
+          <div class="home-card-value">—</div>
+        </div>
+        <div class="home-card" onclick="navigateTo('customers')">
+          <span class="material-icons">group</span>
+          <div class="home-card-label">Покупатели</div>
+          <div class="home-card-value">—</div>
+        </div>
       </div>
     </div>
-    <div class="home-values" id="homeValues">
-      <div class="home-val-row"><span class="hv-label">Баланс ЛС</span><span class="hv-value hv-pink">—</span></div>
-      <div class="home-val-row"><span class="hv-label">LP баллы</span><span class="hv-value hv-teal">—</span></div>
-      <div class="home-val-row"><span class="hv-label">Заказов</span><span class="hv-value hv-orange">—</span></div>
-      <div class="home-val-row"><span class="hv-label">Покупателей</span><span class="hv-value hv-green">—</span></div>
+
+    <!-- CATALOG -->
+    <div class="page" id="page-catalog">
+      <div class="product-list" id="productList"></div>
     </div>
-    <div class="home-app">Мир TF — Версия 2.0.1</div>
-  </div>
-</div>
 
-<!-- PAGE: CATALOG -->
-<div class="page" id="pageCatalog">
-  <div class="segment-bar" id="segmentBar"></div>
-  <div id="catalogContent">
-    <div class="loading"><div class="spinner"></div><div class="loading-text">Загрузка каталога...</div></div>
-  </div>
-</div>
+    <!-- NOTIFICATIONS -->
+    <div class="page" id="page-notifications">
+      <div class="notif-list" id="notifList"></div>
+    </div>
 
-<!-- PAGE: NOTIFICATIONS -->
-<div class="page" id="pageNotifications">
-  <div id="notifContent">
-    <div class="loading"><div class="spinner"></div><div class="loading-text">Загрузка уведомлений...</div></div>
-  </div>
-</div>
+    <!-- DOCUMENTS -->
+    <div class="page" id="page-documents">
+      <div class="page-placeholder">
+        <span class="material-icons">description</span>
+        <strong>Документы</strong>
+        <p>Раздел будет доступен после подключения API</p>
+      </div>
+    </div>
 
-<!-- PAGE: ORDERS -->
-<div class="page" id="pageOrders">
-  <div class="placeholder-page">
-    <span class="pp-icon material-icons">receipt_long</span>
-    <div class="pp-title">Документы</div>
-    <div class="pp-text">Раздел будет доступен после подключения<br>endpoint'а заказов в API 1С</div>
-  </div>
-</div>
+    <!-- CUSTOMERS -->
+    <div class="page" id="page-customers">
+      <div class="page-placeholder">
+        <span class="material-icons">group</span>
+        <strong>Покупатели</strong>
+        <p>Раздел будет доступен после подключения API</p>
+      </div>
+    </div>
 
-<!-- PAGE: BUYERS -->
-<div class="page" id="pageBuyers">
-  <div class="placeholder-page">
-    <span class="pp-icon material-icons">people</span>
-    <div class="pp-title">Покупатели</div>
-    <div class="pp-text">Раздел будет доступен после подключения<br>endpoint'а пользователей в API 1С</div>
-  </div>
-</div>
+    <!-- NEWS -->
+    <div class="page" id="page-news">
+      <div class="page-placeholder">
+        <span class="material-icons">newspaper</span>
+        <strong>Новости</strong>
+        <p>Раздел будет доступен после подключения API</p>
+      </div>
+    </div>
 
-<!-- PAGE: NEWS -->
-<div class="page" id="pageNews">
-  <div class="placeholder-page">
-    <span class="pp-icon material-icons">article</span>
-    <div class="pp-title">Новости</div>
-    <div class="pp-text">Раздел будет доступен после настройки<br>параметров endpoint'а новостей в API 1С</div>
-  </div>
-</div>
+    <!-- KNOWLEDGE -->
+    <div class="page" id="page-knowledge">
+      <div class="page-placeholder">
+        <span class="material-icons">menu_book</span>
+        <strong>База знаний</strong>
+        <p>Раздел будет доступен после подключения API</p>
+      </div>
+    </div>
 
-<!-- PAGE: ARTICLES -->
-<div class="page" id="pageArticles">
-  <div class="placeholder-page">
-    <span class="pp-icon material-icons">local_library</span>
-    <div class="pp-title">База знаний</div>
-    <div class="pp-text">Статьи и документация<br>будут доступны позже</div>
-  </div>
-</div>
-
-<!-- PAGE: FAQ -->
-<div class="page" id="pageFaq">
-  <div class="placeholder-page">
-    <span class="pp-icon material-icons">help_center</span>
-    <div class="pp-title">Вопросы и ответы</div>
-    <div class="pp-text">FAQ будет доступен<br>после подключения базы знаний</div>
-  </div>
-</div>
-
-<!-- PAGE: SETTINGS -->
-<div class="page" id="pageSettings">
-  <div class="settings-list">
-    <div class="settings-group-title">Общие</div>
-    <div class="settings-item"><span class="si-label">Язык интерфейса</span><span class="si-value">Русский</span></div>
-    <div class="settings-item"><span class="si-label">Версия</span><span class="si-value">2.0.1</span></div>
-    <div class="settings-group-title">API подключение</div>
-    <div class="settings-item"><span class="si-label">Статус</span><span class="si-value" id="settingsStatus">—</span></div>
-    <div class="settings-item"><span class="si-label">Worker URL</span><span class="si-value" id="settingsWorker" style="word-break:break-all;max-width:60%">—</span></div>
-    <div class="settings-item"><span class="si-label">Товаров</span><span class="si-value" id="settingsProducts">—</span></div>
-    <div class="settings-item"><span class="si-label">Уведомлений</span><span class="si-value" id="settingsNotifs">—</span></div>
-    <div class="settings-group-title">Система</div>
-    <div class="settings-item"><span class="si-label">Фронтенд</span><span class="si-value">GitHub Pages</span></div>
-    <div class="settings-item"><span class="si-label">Прокси</span><span class="si-value">Cloudflare Worker</span></div>
-    <div class="settings-item"><span class="si-label">Бэкенд</span><span class="si-value">1С HTTP-сервис</span></div>
-    <div class="settings-item" style="cursor:pointer" onclick="resetConfig()"><span class="si-label" style="color:var(--danger)">Сбросить настройки API</span><span class="si-value"></span></div>
+    <!-- SETTINGS -->
+    <div class="page" id="page-settings">
+      <div class="page-placeholder">
+        <span class="material-icons">settings</span>
+        <strong>Настройки</strong>
+        <p>Раздел будет доступен в следующей версии</p>
+      </div>
+    </div>
   </div>
 </div>
 
 <!-- PRODUCT DETAIL -->
-<div class="detail-overlay" id="detailOverlay" onclick="if(event.target===this)closeDetail()">
-  <div class="detail-sheet">
-    <div class="detail-handle" onclick="closeDetail()"><div></div></div>
-    <div class="detail-img-wrap" id="detailImg"></div>
-    <div class="detail-body">
-      <div class="db-category" id="detailCat"></div>
-      <div class="db-name" id="detailName"></div>
-      <div class="db-meta">
-        <div class="db-meta-item"><div class="dm-label">Цена</div><div class="dm-value price-c" id="detailPrice"></div></div>
-        <div class="db-meta-item"><div class="dm-label">LP баллы</div><div class="dm-value lp-c" id="detailLP"></div></div>
+<div class="product-detail" id="productDetail">
+  <div class="product-detail-header">
+    <button class="product-detail-back" onclick="closeProductDetail()">
+      <span class="material-icons">arrow_back</span> Назад
+    </button>
+    <div class="product-detail-title" id="detailTitle">Товар</div>
+  </div>
+  <div class="product-detail-body">
+    <img class="product-detail-img" id="detailImg" src="" alt="">
+    <div class="product-detail-content">
+      <div class="product-detail-pname" id="detailName"></div>
+      <div class="product-detail-cat" id="detailCategory"></div>
+      <div class="product-detail-prices">
+        <span class="product-detail-price" id="detailPrice"></span>
+        <span class="product-detail-lp" id="detailLP"></span>
       </div>
-      <div class="db-desc" id="detailDesc"></div>
-      <button class="db-cart-btn" onclick="closeDetail()">Добавить в корзину</button>
+      <div class="product-detail-desc" id="detailDesc"></div>
     </div>
   </div>
 </div>
 
 <script>
-const USER_ID="000000004";
-const STORAGE_KEY="tf_worker_url";
-let WORKER_URL=localStorage.getItem(STORAGE_KEY)||"https://tf-api.camenadoo.workers.dev";
-let productsData=[];
-let notifsData={new:[],old:[]};
-let categories=[];
-const titles={home:"Главная",catalog:"Каталог",orders:"Документы",buyers:"Покупатели",news:"Новости",notifications:"Уведомления",articles:"База знаний",faq:"Вопросы и ответы",settings:"Настройки"};
+// ===== CONFIG =====
+const WORKER_URL = 'https://tf-api.camenadoo.workers.dev';
+const USER_ID_1C = '000000004'; // userId для запросов к API 1С
 
-document.addEventListener("DOMContentLoaded",()=>{
-  loadAll();
-});
+// ===== STATE =====
+let currentUser = null;
+let authToken = null;
+let products = [];
+let notifications = [];
 
-function saveWorkerUrl(){
-  let u=document.getElementById("workerUrlInput").value.trim();
-  if(!u)return;
-  if(!u.startsWith("http"))u="https://"+u;
-  u=u.replace(/\/+$/,"");
-  WORKER_URL=u;
-  localStorage.setItem(STORAGE_KEY,u);
-  document.getElementById("configBanner").style.display="none";
-  loadAll();
+// ===== LOADER =====
+function showLoader(text) {
+  document.getElementById('loaderText').textContent = text || 'Загружаем...';
+  document.getElementById('loader').classList.add('visible');
 }
-function resetConfig(){
-  if(confirm("Сбросить настройки API?")){
-    localStorage.removeItem(STORAGE_KEY);
-    WORKER_URL="";
-    location.reload();
+function hideLoader() {
+  setTimeout(() => document.getElementById('loader').classList.remove('visible'), 300);
+}
+
+// ===== AUTH =====
+function showLogin() {
+  document.getElementById('loginForm').style.display = '';
+  document.getElementById('registerForm').style.display = 'none';
+  clearErrors();
+}
+function showRegister() {
+  document.getElementById('loginForm').style.display = 'none';
+  document.getElementById('registerForm').style.display = '';
+  clearErrors();
+}
+function clearErrors() {
+  document.querySelectorAll('.field-error').forEach(el => el.textContent = '');
+  document.querySelectorAll('.auth-error').forEach(el => el.classList.remove('visible'));
+  document.querySelectorAll('.auth-field input').forEach(el => el.classList.remove('error'));
+}
+
+async function doLogin() {
+  clearErrors();
+  const phone = document.getElementById('loginPhone').value.trim();
+  const pin = document.getElementById('loginPin').value.trim();
+  let ok = true;
+
+  if (!phone) {
+    document.getElementById('loginPhoneError').textContent = 'Введите номер телефона';
+    document.getElementById('loginPhone').classList.add('error');
+    ok = false;
+  }
+  if (!pin) {
+    document.getElementById('loginPinError').textContent = 'Введите пин-код';
+    document.getElementById('loginPin').classList.add('error');
+    ok = false;
+  }
+  if (!ok) return;
+
+  showLoader('Входим...');
+  document.getElementById('loginBtn').disabled = true;
+
+  try {
+    const resp = await fetch(`${WORKER_URL}/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ phone, pin }),
+    });
+    const data = await resp.json();
+
+    if (data.isError) {
+      const errEl = document.getElementById('loginError');
+      errEl.textContent = data.error;
+      errEl.classList.add('visible');
+    } else {
+      authToken = data.token;
+      currentUser = data.user;
+      localStorage.setItem('tf_token', authToken);
+      localStorage.setItem('tf_user', JSON.stringify(currentUser));
+      enterApp();
+    }
+  } catch (e) {
+    const errEl = document.getElementById('loginError');
+    errEl.textContent = 'Нет связи с сервером';
+    errEl.classList.add('visible');
+  } finally {
+    hideLoader();
+    document.getElementById('loginBtn').disabled = false;
   }
 }
 
-// === MENU ===
-function toggleMenu(){
-  document.getElementById("sideMenu").classList.toggle("open");
-  document.getElementById("menuOverlay").classList.toggle("open");
-}
-function switchPage(name){
-  document.getElementById("sideMenu").classList.remove("open");
-  document.getElementById("menuOverlay").classList.remove("open");
-  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
-  const pageId="page"+name.charAt(0).toUpperCase()+name.slice(1);
-  const el=document.getElementById(pageId);
-  if(el)el.classList.add("active");
-  document.getElementById("toolbarTitle").textContent=titles[name]||name;
-  document.querySelectorAll(".menu-item").forEach(m=>m.classList.remove("active"));
-  const items=document.querySelectorAll(".menu-item");
-  items.forEach(m=>{if(m.textContent.trim()===titles[name])m.classList.add("active")});
-}
+async function doRegister() {
+  clearErrors();
+  const name = document.getElementById('regName').value.trim();
+  const phone = document.getElementById('regPhone').value.trim();
+  const visitorId = document.getElementById('regVisitorId').value.trim();
+  const pin = document.getElementById('regPin').value.trim();
+  const pinConfirm = document.getElementById('regPinConfirm').value.trim();
+  let ok = true;
 
-// === API ===
-async function apiCall(ep){
-  if(!WORKER_URL)throw new Error("Worker URL не настроен");
-  const r=await fetch(WORKER_URL+ep);
-  if(!r.ok)throw new Error("HTTP "+r.status);
-  return await r.json();
-}
-async function loadAll(){
-  if(!WORKER_URL){setStatus("offline");return}
-  setStatus("loading");
-  await Promise.all([loadProducts(),loadNotifications()]);
-}
+  if (!name) {
+    document.getElementById('regNameError').textContent = 'Введите имя';
+    document.getElementById('regName').classList.add('error');
+    ok = false;
+  }
+  if (!phone) {
+    document.getElementById('regPhoneError').textContent = 'Введите номер телефона';
+    document.getElementById('regPhone').classList.add('error');
+    ok = false;
+  }
+  if (!pin || pin.length < 4) {
+    document.getElementById('regPinError').textContent = 'Минимум 4 цифры';
+    document.getElementById('regPin').classList.add('error');
+    ok = false;
+  }
+  if (pin !== pinConfirm) {
+    document.getElementById('regPinConfirmError').textContent = 'Пин-коды не совпадают';
+    document.getElementById('regPinConfirm').classList.add('error');
+    ok = false;
+  }
+  if (!ok) return;
 
-// === PRODUCTS ===
-async function loadProducts(){
-  const el=document.getElementById("catalogContent");
-  try{
-    const d=await apiCall("/products/getList?userId="+USER_ID);
-    if(d.isError)throw new Error(d.error||"Ошибка");
-    productsData=d.products||[];
-    const catMap=new Map();
-    productsData.forEach(p=>{if(p.categoryName&&!catMap.has(p.categoryId))catMap.set(p.categoryId,p.categoryName)});
-    categories=Array.from(catMap,([id,name])=>({id,name}));
-    renderSegments();
-    renderProducts(productsData);
-    setStatus("online");
-    document.getElementById("settingsProducts").textContent=productsData.length;
-    document.getElementById("settingsStatus").textContent="✅ Подключено";
-    document.getElementById("settingsWorker").textContent=WORKER_URL;
-  }catch(e){
-    el.innerHTML='<div class="error-block">Ошибка: '+esc(e.message)+'<br><button class="retry-btn" onclick="loadProducts()">Повторить</button></div>';
-    setStatus("offline");
-    document.getElementById("settingsStatus").textContent="❌ "+e.message;
+  showLoader('Регистрируем...');
+  document.getElementById('registerBtn').disabled = true;
+
+  try {
+    const resp = await fetch(`${WORKER_URL}/auth/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, phone, visitorId, pin }),
+    });
+    const data = await resp.json();
+
+    if (data.isError) {
+      const errEl = document.getElementById('registerError');
+      errEl.textContent = data.error;
+      errEl.classList.add('visible');
+    } else {
+      authToken = data.token;
+      currentUser = data.user;
+      localStorage.setItem('tf_token', authToken);
+      localStorage.setItem('tf_user', JSON.stringify(currentUser));
+      enterApp();
+    }
+  } catch (e) {
+    const errEl = document.getElementById('registerError');
+    errEl.textContent = 'Нет связи с сервером';
+    errEl.classList.add('visible');
+  } finally {
+    hideLoader();
+    document.getElementById('registerBtn').disabled = false;
   }
 }
-function renderSegments(){
-  const bar=document.getElementById("segmentBar");
-  if(categories.length<=1){bar.innerHTML="";return}
-  let h='<button class="segment-btn active" onclick="filterCat(null,this)">Все</button>';
-  categories.forEach(c=>{h+='<button class="segment-btn" onclick="filterCat(\''+c.id+'\',this)">'+esc(c.name)+"</button>"});
-  bar.innerHTML=h;
+
+function doLogout() {
+  closeMenu();
+  if (authToken) {
+    fetch(`${WORKER_URL}/auth/logout`, {
+      method: 'POST',
+      headers: { 'X-Auth-Token': authToken },
+    }).catch(() => {});
+  }
+  localStorage.removeItem('tf_token');
+  localStorage.removeItem('tf_user');
+  authToken = null;
+  currentUser = null;
+  document.getElementById('app').classList.remove('visible');
+  document.getElementById('authScreen').classList.remove('hidden');
+  showLogin();
+  // Очищаем поля
+  document.querySelectorAll('.auth-field input').forEach(el => el.value = '');
 }
-function filterCat(id,btn){
-  document.querySelectorAll(".segment-btn").forEach(b=>b.classList.remove("active"));
-  btn.classList.add("active");
-  renderProducts(id?productsData.filter(p=>p.categoryId===id):productsData);
+
+async function checkSession() {
+  const token = localStorage.getItem('tf_token');
+  const user = localStorage.getItem('tf_user');
+  if (!token || !user) return false;
+
+  try {
+    const resp = await fetch(`${WORKER_URL}/auth/check?token=${token}`);
+    const data = await resp.json();
+    if (!data.isError) {
+      authToken = token;
+      currentUser = data.user;
+      return true;
+    }
+  } catch (e) {
+    // Оффлайн — используем кэш
+    authToken = token;
+    currentUser = JSON.parse(user);
+    return true;
+  }
+  localStorage.removeItem('tf_token');
+  localStorage.removeItem('tf_user');
+  return false;
 }
-function renderProducts(list){
-  const el=document.getElementById("catalogContent");
-  if(!list.length){el.innerHTML='<div class="placeholder-page"><span class="pp-icon material-icons">inventory_2</span><div class="pp-title">Товары не найдены</div></div>';return}
-  let h='<div class="product-list">';
-  list.forEach((p,i)=>{
-    const img=p.image?'<img src="data:image/jpeg;base64,'+p.image+'" alt="'+esc(p.productName)+'" loading="lazy">':'<span class="thumb-placeholder material-icons">image</span>';
-    h+='<div class="product-item" onclick="openDetail('+i+')">'
-      +'<div class="product-thumb">'+img+'</div>'
-      +'<div class="product-info">'
-      +'<div class="pi-name">'+esc(p.productName)+'</div>'
-      +'<div class="pi-category">'+esc(p.categoryName||"")+'</div>'
-      +'<div class="pi-price-row">'
-      +'<span class="pi-price">'+fmtPrice(p.price)+' ₽</span>'
-      +(p.LP?'<span class="pi-lp">'+p.LP+' LP</span>':'')
-      +'</div></div></div>';
+
+function enterApp() {
+  document.getElementById('authScreen').classList.add('hidden');
+  document.getElementById('app').classList.add('visible');
+  updateUserUI();
+  loadData();
+}
+
+function updateUserUI() {
+  if (!currentUser) return;
+  const name = currentUser.name || '—';
+  document.getElementById('menuUserName').textContent = name;
+  document.getElementById('menuUserPhone').textContent = currentUser.phone || '';
+  document.getElementById('menuUserId').textContent = currentUser.userId ? `ID: ${currentUser.userId}` : '';
+  document.getElementById('homeUserName').textContent = name.split(' ')[0];
+}
+
+// ===== NAVIGATION =====
+const pageTitles = {
+  home: 'TF Business',
+  catalog: 'Каталог',
+  notifications: 'Уведомления',
+  documents: 'Документы',
+  customers: 'Покупатели',
+  news: 'Новости',
+  knowledge: 'База знаний',
+  settings: 'Настройки',
+};
+
+function navigateTo(page) {
+  closeMenu();
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById(`page-${page}`).classList.add('active');
+  document.getElementById('toolbarTitle').textContent = pageTitles[page] || 'TF Business';
+  document.querySelectorAll('.sidemenu-item').forEach(item => {
+    item.classList.toggle('active', item.dataset.page === page);
   });
-  h+='</div>';
-  el.innerHTML=h;
+  document.querySelector('.content').scrollTop = 0;
 }
 
-// === DETAIL ===
-function openDetail(i){
-  const p=productsData[i];if(!p)return;
-  document.getElementById("detailImg").innerHTML=p.image?'<img src="data:image/jpeg;base64,'+p.image+'">':'<span class="thumb-placeholder material-icons" style="font-size:64px;color:#bbb">image</span>';
-  document.getElementById("detailCat").textContent=p.categoryName||"";
-  document.getElementById("detailName").textContent=p.productName;
-  document.getElementById("detailPrice").textContent=fmtPrice(p.price)+" ₽";
-  document.getElementById("detailLP").textContent=(p.LP||0)+" LP";
-  document.getElementById("detailDesc").innerHTML=p.description?cleanHtml(p.description):"Описание отсутствует";
-  document.getElementById("detailOverlay").classList.add("open");
-  document.body.style.overflow="hidden";
+// ===== SIDEMENU =====
+function openMenu() {
+  document.getElementById('sidemenu').classList.add('open');
+  document.getElementById('menuOverlay').classList.add('open');
 }
-function closeDetail(){
-  document.getElementById("detailOverlay").classList.remove("open");
-  document.body.style.overflow="";
+function closeMenu() {
+  document.getElementById('sidemenu').classList.remove('open');
+  document.getElementById('menuOverlay').classList.remove('open');
 }
 
-// === NOTIFICATIONS ===
-async function loadNotifications(){
-  const el=document.getElementById("notifContent");
-  try{
-    const d=await apiCall("/notifications/getList?userId="+USER_ID);
-    if(d.isError)throw new Error(d.error||"Ошибка");
-    notifsData=d.notifications||{new:[],old:[]};
-    const nc=(notifsData.new||[]).length;
-    const total=nc+(notifsData.old||[]).length;
-    document.getElementById("notifDot").style.display=nc>0?"block":"none";
-    document.getElementById("settingsNotifs").textContent=total;
-    renderNotifs();
-  }catch(e){
-    el.innerHTML='<div class="error-block">Ошибка: '+esc(e.message)+'<br><button class="retry-btn" onclick="loadNotifications()">Повторить</button></div>';
+// ===== DATA LOADING =====
+async function loadData() {
+  showLoader('Загружаем данные...');
+  try {
+    await Promise.all([loadProducts(), loadNotifications()]);
+  } catch (e) {
+    console.error('Load error:', e);
+  }
+  hideLoader();
+}
+
+async function loadProducts() {
+  try {
+    const resp = await fetch(`${WORKER_URL}/products/getList?userId=${USER_ID_1C}`);
+    const data = await resp.json();
+    if (!data.isError && data.products) {
+      products = data.products;
+      renderProducts();
+      document.getElementById('homeProductCount').textContent = products.length;
+    }
+  } catch (e) {
+    console.error('Products error:', e);
   }
 }
-function renderNotifs(){
-  const el=document.getElementById("notifContent");
-  const nw=notifsData.new||[],ol=notifsData.old||[];
-  if(!nw.length&&!ol.length){el.innerHTML='<div class="placeholder-page"><span class="pp-icon material-icons">notifications_none</span><div class="pp-title">Нет уведомлений</div></div>';return}
-  let h='<div class="notif-list">';
-  if(nw.length){h+='<div class="notif-section">Новые ('+nw.length+')</div>';nw.forEach(n=>{h+=notifHtml(n,true)})}
-  if(ol.length){h+='<div class="notif-section">Прочитанные</div>';ol.forEach(n=>{h+=notifHtml(n,false)})}
-  h+='</div>';el.innerHTML=h;
-}
-function notifHtml(n,isNew){
-  const t=n.type||"";
-  let ic="mail",cls="ni-other";
-  if(t.includes("Поступление")||t.includes("ДС")){ic="payments";cls="ni-money"}
-  else if(t.includes("Новость")||t.includes("Новос")){ic="article";cls="ni-news"}
-  else if(t.includes("Систем")){ic="settings";cls="ni-system"}
-  return '<div class="notif-item'+(isNew?" is-new":"")+'">'
-    +'<div class="ni-icon '+cls+'"><span class="material-icons">'+ic+'</span></div>'
-    +'<div class="ni-body"><div class="ni-text">'+esc(n.name||"")+'</div><div class="ni-type">'+esc(t)+'</div></div></div>';
+
+async function loadNotifications() {
+  try {
+    const resp = await fetch(`${WORKER_URL}/notifications/getList?userId=${USER_ID_1C}`);
+    const data = await resp.json();
+    if (!data.isError && data.notifications) {
+      notifications = data.notifications;
+      renderNotifications();
+      const count = notifications.length;
+      document.getElementById('homeNotifCount').textContent = count;
+      const badge = document.getElementById('notifBadge');
+      if (count > 0) {
+        badge.textContent = count > 99 ? '99+' : count;
+        badge.style.display = '';
+      } else {
+        badge.style.display = 'none';
+      }
+    }
+  } catch (e) {
+    console.error('Notifications error:', e);
+  }
 }
 
-// === HELPERS ===
-function setStatus(s){
-  const d=document.getElementById("statusDot");
-  d.className="s-dot "+s;
+// ===== RENDERERS =====
+function renderProducts() {
+  const list = document.getElementById('productList');
+  if (!products.length) {
+    list.innerHTML = '<div class="notif-empty"><span class="material-icons">shopping_bag</span>Нет товаров</div>';
+    return;
+  }
+  list.innerHTML = products.map((p, i) => `
+    <div class="product-card" onclick="showProduct(${i})">
+      <div class="product-img">
+        ${p.image ? `<img src="data:image/jpeg;base64,${p.image}" alt="${p.productName}">` : '<span class="material-icons">image</span>'}
+      </div>
+      <div class="product-info">
+        <div class="product-category">${p.categoryName || ''}</div>
+        <div class="product-name">${p.productName}</div>
+        <div class="product-price-row">
+          <span class="product-price">${formatPrice(p.price)} ₽</span>
+          ${p.LP ? `<span class="product-lp">${p.LP} LP</span>` : ''}
+        </div>
+      </div>
+    </div>
+  `).join('');
 }
-function fmtPrice(p){const n=parseFloat(p);return isNaN(n)?p:n.toLocaleString("ru-RU",{minimumFractionDigits:0,maximumFractionDigits:0})}
-function esc(s){if(!s)return"";const d=document.createElement("div");d.textContent=s;return d.innerHTML}
-function cleanHtml(h){return h.replace(/<o:p><\/o:p>/gi,"").replace(/<p class="MsoNormal">/gi,"<p>").replace(/style="[^"]*caret-color[^"]*"/gi,"")}
-document.addEventListener("keydown",e=>{if(e.key==="Escape"){closeDetail();document.getElementById("sideMenu").classList.remove("open");document.getElementById("menuOverlay").classList.remove("open")}});
+
+function renderNotifications() {
+  const list = document.getElementById('notifList');
+  if (!notifications.length) {
+    list.innerHTML = '<div class="notif-empty"><span class="material-icons">notifications_none</span>Нет уведомлений</div>';
+    return;
+  }
+  list.innerHTML = notifications.map(n => `
+    <div class="notif-card ${n.isNew ? 'unread' : ''}">
+      <div class="notif-type">${n.type || 'Уведомление'}</div>
+      <div class="notif-text">${n.text || n.message || ''}</div>
+      <div class="notif-date">${n.date || ''}</div>
+    </div>
+  `).join('');
+}
+
+function showProduct(index) {
+  const p = products[index];
+  if (!p) return;
+  document.getElementById('detailTitle').textContent = p.productName;
+  document.getElementById('detailName').textContent = p.productName;
+  document.getElementById('detailCategory').textContent = p.categoryName || '';
+  document.getElementById('detailPrice').textContent = formatPrice(p.price) + ' ₽';
+  document.getElementById('detailLP').textContent = p.LP ? `${p.LP} LP` : '';
+
+  const img = document.getElementById('detailImg');
+  if (p.image) {
+    img.src = `data:image/jpeg;base64,${p.image}`;
+    img.style.display = '';
+  } else {
+    img.style.display = 'none';
+  }
+
+  const desc = document.getElementById('detailDesc');
+  desc.innerHTML = p.description || 'Описание отсутствует';
+
+  document.getElementById('productDetail').classList.add('visible');
+}
+
+function closeProductDetail() {
+  document.getElementById('productDetail').classList.remove('visible');
+}
+
+function formatPrice(price) {
+  const num = parseFloat(price);
+  if (isNaN(num)) return price;
+  return num.toLocaleString('ru-RU', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+}
+
+// ===== INIT =====
+async function init() {
+  showLoader('Проверяем сессию...');
+  const hasSession = await checkSession();
+  hideLoader();
+
+  if (hasSession) {
+    enterApp();
+  }
+  // Иначе показываем форму входа (по умолчанию)
+}
+
+init();
 </script>
 </body>
 </html>
