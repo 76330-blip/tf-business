@@ -1,0 +1,991 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0a1628">
+<title>TF Business v1.0.0</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💎</text></svg>">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ===== RESET & BASE ===== */
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+:root {
+  --bg-deep: #0a1628;
+  --bg-card: #111d32;
+  --bg-card-hover: #162440;
+  --bg-surface: #0e1a2e;
+  --accent: #38bdf8;
+  --accent-glow: rgba(56,189,248,0.15);
+  --accent-warm: #f59e0b;
+  --accent-green: #22c55e;
+  --accent-red: #ef4444;
+  --text-primary: #e8edf5;
+  --text-secondary: #7b8ba5;
+  --text-muted: #4a5a74;
+  --border: rgba(255,255,255,0.06);
+  --radius: 16px;
+  --radius-sm: 10px;
+  --radius-xs: 6px;
+  --nav-height: 72px;
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+html { font-size: 16px; -webkit-tap-highlight-color: transparent; }
+body {
+  font-family: 'Outfit', -apple-system, sans-serif;
+  background: var(--bg-deep);
+  color: var(--text-primary);
+  min-height: 100dvh;
+  overflow-x: hidden;
+  padding-bottom: calc(var(--nav-height) + var(--safe-bottom) + 16px);
+}
+a { color: var(--accent); text-decoration: none; }
+img { display: block; max-width: 100%; }
+
+/* ===== SCROLLBAR ===== */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--text-muted); border-radius: 4px; }
+
+/* ===== BACKGROUND ATMOSPHERE ===== */
+body::before {
+  content: '';
+  position: fixed;
+  top: -40%; left: -20%;
+  width: 140%; height: 140%;
+  background: radial-gradient(ellipse at 20% 10%, rgba(56,189,248,0.06) 0%, transparent 60%),
+              radial-gradient(ellipse at 80% 80%, rgba(245,158,11,0.04) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ===== HEADER ===== */
+.header {
+  position: sticky; top: 0; z-index: 100;
+  padding: 16px 20px;
+  background: rgba(10,22,40,0.85);
+  backdrop-filter: blur(20px) saturate(1.4);
+  -webkit-backdrop-filter: blur(20px) saturate(1.4);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.header-logo {
+  display: flex; align-items: center; gap: 10px;
+  font-weight: 700; font-size: 1.25rem; letter-spacing: -0.02em;
+}
+.header-logo .logo-icon {
+  width: 36px; height: 36px;
+  background: linear-gradient(135deg, var(--accent), #818cf8);
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.1rem;
+  box-shadow: 0 4px 16px rgba(56,189,248,0.25);
+}
+.header-right { display: flex; align-items: center; gap: 12px; }
+.status-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--accent-green);
+  box-shadow: 0 0 8px rgba(34,197,94,0.5);
+  animation: pulse-dot 2s ease infinite;
+}
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+.header-badge {
+  font-size: 0.7rem;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--text-muted);
+  background: rgba(255,255,255,0.04);
+  padding: 4px 8px;
+  border-radius: var(--radius-xs);
+}
+
+/* ===== PAGE CONTAINER ===== */
+.page { position: relative; z-index: 1; display: none; }
+.page.active { display: block; animation: fadeIn 0.3s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+.page-title {
+  padding: 24px 20px 8px;
+  font-size: 1.7rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+}
+.page-subtitle {
+  padding: 0 20px 20px;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  font-weight: 400;
+}
+
+/* ===== PRODUCT GRID ===== */
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  padding: 0 16px 24px;
+}
+@media (min-width: 540px) {
+  .product-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+/* ===== PRODUCT CARD ===== */
+.product-card {
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  overflow: hidden;
+  border: 1px solid var(--border);
+  cursor: pointer;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+  position: relative;
+}
+.product-card:active {
+  transform: scale(0.95);
+}
+.product-card:hover {
+  border-color: rgba(56,189,248,0.2);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.3), 0 0 0 1px rgba(56,189,248,0.08);
+}
+.product-card .card-img {
+  width: 100%;
+  aspect-ratio: 1;
+  background: var(--bg-surface);
+  display: flex; align-items: center; justify-content: center;
+  overflow: hidden;
+  position: relative;
+}
+.product-card .card-img img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+.product-card:hover .card-img img { transform: scale(1.05); }
+.product-card .card-img .img-placeholder {
+  font-size: 2.5rem;
+  opacity: 0.2;
+}
+.card-lp {
+  position: absolute;
+  top: 8px; right: 8px;
+  background: rgba(10,22,40,0.85);
+  backdrop-filter: blur(8px);
+  color: var(--accent-warm);
+  font-size: 0.65rem;
+  font-weight: 700;
+  font-family: 'JetBrains Mono', monospace;
+  padding: 4px 7px;
+  border-radius: var(--radius-xs);
+  letter-spacing: 0.02em;
+}
+.card-body { padding: 12px; }
+.card-category {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+.card-name {
+  font-size: 0.85rem;
+  font-weight: 600;
+  line-height: 1.25;
+  margin-bottom: 8px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.card-price {
+  font-size: 1rem;
+  font-weight: 700;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--text-primary);
+}
+.card-price .currency {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  font-weight: 400;
+  margin-left: 2px;
+}
+
+/* ===== CATEGORY FILTER ===== */
+.filter-bar {
+  display: flex;
+  gap: 8px;
+  padding: 0 16px 16px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.filter-bar::-webkit-scrollbar { display: none; }
+.filter-chip {
+  flex-shrink: 0;
+  padding: 8px 16px;
+  min-height: 44px;
+  border-radius: 100px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  background: var(--bg-card);
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+}
+.filter-chip:active { transform: scale(0.95); }
+.filter-chip.active {
+  background: var(--accent);
+  color: var(--bg-deep);
+  border-color: var(--accent);
+  font-weight: 600;
+  box-shadow: 0 2px 12px rgba(56,189,248,0.3);
+}
+
+/* ===== PRODUCT DETAIL ===== */
+.detail-overlay {
+  position: fixed; inset: 0; z-index: 200;
+  background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(4px);
+  display: none;
+  align-items: flex-end;
+  justify-content: center;
+}
+.detail-overlay.open { display: flex; }
+.detail-sheet {
+  background: var(--bg-card);
+  border-radius: 24px 24px 0 0;
+  width: 100%;
+  max-width: 540px;
+  max-height: 88dvh;
+  overflow-y: auto;
+  animation: slideUp 0.35s cubic-bezier(0.22,1,0.36,1);
+  padding-bottom: var(--safe-bottom);
+}
+@keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+.detail-close {
+  position: sticky; top: 0; z-index: 10;
+  display: flex; justify-content: center;
+  padding: 12px 0 8px;
+  background: var(--bg-card);
+}
+.detail-close .handle {
+  width: 40px; height: 4px;
+  background: var(--text-muted);
+  border-radius: 4px;
+  cursor: pointer;
+  padding: 20px 40px;
+  background-clip: content-box;
+}
+.detail-img {
+  width: 100%;
+  aspect-ratio: 4/3;
+  background: var(--bg-surface);
+  display: flex; align-items: center; justify-content: center;
+  overflow: hidden;
+}
+.detail-img img { width: 100%; height: 100%; object-fit: contain; }
+.detail-body { padding: 20px; }
+.detail-category {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+.detail-name {
+  font-size: 1.35rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  margin-bottom: 12px;
+}
+.detail-meta {
+  display: flex; gap: 12px;
+  margin-bottom: 20px;
+}
+.detail-meta-item {
+  display: flex; align-items: center; gap: 6px;
+  padding: 8px 14px;
+  background: rgba(255,255,255,0.04);
+  border-radius: var(--radius-sm);
+  font-family: 'JetBrains Mono', monospace;
+}
+.detail-meta-item .meta-label {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+.detail-meta-item .meta-value {
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+.detail-meta-item .meta-value.price-val { color: var(--text-primary); }
+.detail-meta-item .meta-value.lp-val { color: var(--accent-warm); }
+.detail-description {
+  font-size: 0.88rem;
+  line-height: 1.65;
+  color: var(--text-secondary);
+}
+.detail-description b, .detail-description strong { color: var(--text-primary); font-weight: 600; }
+.detail-description ul { padding-left: 18px; margin: 8px 0; }
+.detail-description li { margin-bottom: 6px; }
+
+/* ===== NOTIFICATIONS ===== */
+.notif-list { padding: 0 16px 24px; }
+.notif-section-title {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  font-weight: 600;
+  padding: 12px 4px 8px;
+}
+.notif-item {
+  display: flex;
+  gap: 14px;
+  padding: 16px;
+  margin-bottom: 8px;
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  transition: border-color 0.2s, transform 0.15s;
+  min-height: 44px;
+  cursor: pointer;
+}
+.notif-item:active { transform: scale(0.95); }
+.notif-item.new {
+  border-left: 3px solid var(--accent);
+  background: linear-gradient(135deg, var(--accent-glow), transparent 60%);
+}
+.notif-icon {
+  width: 40px; height: 40px;
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+.notif-icon.money { background: rgba(34,197,94,0.12); }
+.notif-icon.news { background: rgba(56,189,248,0.12); }
+.notif-icon.system { background: rgba(245,158,11,0.12); }
+.notif-icon.other { background: rgba(255,255,255,0.06); }
+.notif-content { flex: 1; min-width: 0; }
+.notif-text {
+  font-size: 0.85rem;
+  line-height: 1.45;
+  margin-bottom: 4px;
+}
+.notif-type {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* ===== INFO PAGE ===== */
+.info-section {
+  margin: 0 16px 16px;
+  padding: 20px;
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+}
+.info-section h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 12px;
+  display: flex; align-items: center; gap: 8px;
+}
+.info-section p {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+.info-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin: 0 16px 16px;
+}
+.stat-card {
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  padding: 16px;
+  text-align: center;
+}
+.stat-value {
+  font-size: 1.4rem;
+  font-weight: 800;
+  font-family: 'JetBrains Mono', monospace;
+  margin-bottom: 4px;
+}
+.stat-value.c-blue { color: var(--accent); }
+.stat-value.c-gold { color: var(--accent-warm); }
+.stat-value.c-green { color: var(--accent-green); }
+.stat-label {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+/* ===== LOADING ===== */
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  gap: 16px;
+}
+.spinner {
+  width: 32px; height: 32px;
+  border: 3px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-text { color: var(--text-muted); font-size: 0.85rem; }
+
+/* ===== ERROR ===== */
+.error-block {
+  margin: 16px;
+  padding: 20px;
+  background: rgba(239,68,68,0.08);
+  border: 1px solid rgba(239,68,68,0.2);
+  border-radius: var(--radius);
+  color: var(--accent-red);
+  font-size: 0.85rem;
+  text-align: center;
+}
+.error-block .retry-btn {
+  display: inline-block;
+  margin-top: 12px;
+  padding: 8px 20px;
+  min-height: 44px;
+  background: var(--accent-red);
+  color: #fff;
+  border-radius: 100px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: transform 0.15s;
+}
+.error-block .retry-btn:active { transform: scale(0.95); }
+
+/* ===== EMPTY STATE ===== */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 60px 20px;
+  text-align: center;
+}
+.empty-icon { font-size: 3rem; margin-bottom: 16px; opacity: 0.3; }
+.empty-text { color: var(--text-muted); font-size: 0.9rem; }
+
+/* ===== BOTTOM NAV ===== */
+.bottom-nav {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  z-index: 150;
+  height: calc(var(--nav-height) + var(--safe-bottom));
+  padding-bottom: var(--safe-bottom);
+  background: rgba(10,22,40,0.92);
+  backdrop-filter: blur(24px) saturate(1.5);
+  -webkit-backdrop-filter: blur(24px) saturate(1.5);
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+}
+.nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 16px;
+  min-width: 44px;
+  min-height: 44px;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+  -webkit-tap-highlight-color: transparent;
+}
+.nav-item:active { transform: scale(0.95); }
+.nav-item .nav-icon {
+  font-size: 1.5rem;
+  line-height: 1;
+  transition: transform 0.2s;
+}
+.nav-item .nav-label {
+  font-size: 0.62rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  letter-spacing: 0.03em;
+  transition: color 0.2s;
+}
+.nav-item.active .nav-icon { transform: scale(1.1); }
+.nav-item.active .nav-label { color: var(--accent); font-weight: 600; }
+.nav-item .nav-badge {
+  position: absolute;
+  top: 2px; right: 6px;
+  min-width: 18px; height: 18px;
+  background: var(--accent-red);
+  color: #fff;
+  font-size: 0.6rem;
+  font-weight: 700;
+  font-family: 'JetBrains Mono', monospace;
+  border-radius: 100px;
+  display: flex; align-items: center; justify-content: center;
+  padding: 0 5px;
+  box-shadow: 0 2px 8px rgba(239,68,68,0.4);
+}
+
+/* ===== CONFIG BANNER ===== */
+.config-banner {
+  margin: 16px;
+  padding: 16px;
+  background: linear-gradient(135deg, rgba(56,189,248,0.1), rgba(129,140,248,0.1));
+  border: 1px solid rgba(56,189,248,0.2);
+  border-radius: var(--radius);
+  display: flex; align-items: flex-start; gap: 12px;
+}
+.config-banner .cb-icon { font-size: 1.3rem; flex-shrink: 0; padding-top: 2px; }
+.config-banner .cb-text { font-size: 0.8rem; color: var(--text-secondary); line-height: 1.5; }
+.config-banner .cb-text strong { color: var(--text-primary); }
+.config-banner input {
+  width: 100%;
+  margin-top: 8px;
+  padding: 10px 14px;
+  background: rgba(0,0,0,0.3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.78rem;
+  outline: none;
+}
+.config-banner input:focus { border-color: var(--accent); }
+.config-banner button {
+  margin-top: 8px;
+  padding: 8px 20px;
+  min-height: 44px;
+  background: var(--accent);
+  color: var(--bg-deep);
+  border: none;
+  border-radius: 100px;
+  font-weight: 600;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: transform 0.15s;
+}
+.config-banner button:active { transform: scale(0.95); }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="header-logo">
+    <div class="logo-icon">💎</div>
+    <span>TF Business</span>
+  </div>
+  <div class="header-right">
+    <div class="status-dot" id="statusDot" title="API Status"></div>
+    <div class="header-badge" id="headerBadge">v1.0.0</div>
+  </div>
+</header>
+
+<!-- CONFIG BANNER (shown if no Worker URL) -->
+<div class="config-banner" id="configBanner" style="display:none;">
+  <div class="cb-icon">⚙️</div>
+  <div class="cb-text">
+    <strong>Настройка API</strong><br>
+    Введите URL вашего Cloudflare Worker:
+    <input type="text" id="workerUrlInput" placeholder="https://tf-api.ваш-аккаунт.workers.dev">
+    <button onclick="saveWorkerUrl()">Сохранить</button>
+  </div>
+</div>
+
+<!-- PAGE: CATALOG -->
+<div class="page active" id="pageCatalog">
+  <div class="page-title">Каталог</div>
+  <div class="page-subtitle">Продукция TF Business</div>
+  <div class="filter-bar" id="filterBar"></div>
+  <div id="catalogContent">
+    <div class="loading"><div class="spinner"></div><div class="loading-text">Загрузка каталога...</div></div>
+  </div>
+</div>
+
+<!-- PAGE: NOTIFICATIONS -->
+<div class="page" id="pageNotifications">
+  <div class="page-title">Уведомления</div>
+  <div class="page-subtitle" id="notifSubtitle">Загрузка...</div>
+  <div id="notifContent">
+    <div class="loading"><div class="spinner"></div><div class="loading-text">Загрузка уведомлений...</div></div>
+  </div>
+</div>
+
+<!-- PAGE: INFO -->
+<div class="page" id="pageInfo">
+  <div class="page-title">О системе</div>
+  <div class="page-subtitle">TF Business — платформа сетевого бизнеса</div>
+  <div class="info-stats" id="infoStats">
+    <div class="stat-card"><div class="stat-value c-blue" id="statProducts">—</div><div class="stat-label">Товаров</div></div>
+    <div class="stat-card"><div class="stat-value c-gold" id="statCategories">—</div><div class="stat-label">Категорий</div></div>
+    <div class="stat-card"><div class="stat-value c-green" id="statNotifs">—</div><div class="stat-label">Уведомлений</div></div>
+  </div>
+  <div class="info-section">
+    <h3>🏢 О компании</h3>
+    <p>TF Business — платформа для управления MLM-бизнесом с бонусной программой лояльности. Система включает каталог продукции, управление заказами, бонусные баллы (LP) и систему уведомлений.</p>
+  </div>
+  <div class="info-section">
+    <h3>📡 API подключение</h3>
+    <p id="apiInfo">Проверка подключения...</p>
+  </div>
+  <div class="info-section">
+    <h3>📱 Технологии</h3>
+    <p>Фронтенд: HTML/CSS/JS (GitHub Pages)<br>
+    Прокси: Cloudflare Worker<br>
+    Бэкенд: 1С:Предприятие HTTP-сервис<br>
+    Сервер: tfapps.ru</p>
+  </div>
+</div>
+
+<!-- PRODUCT DETAIL OVERLAY -->
+<div class="detail-overlay" id="detailOverlay" onclick="if(event.target===this)closeDetail()">
+  <div class="detail-sheet" id="detailSheet">
+    <div class="detail-close" onclick="closeDetail()"><div class="handle"></div></div>
+    <div class="detail-img" id="detailImg"></div>
+    <div class="detail-body">
+      <div class="detail-category" id="detailCategory"></div>
+      <div class="detail-name" id="detailName"></div>
+      <div class="detail-meta">
+        <div class="detail-meta-item">
+          <div><div class="meta-label">Цена</div><div class="meta-value price-val" id="detailPrice"></div></div>
+        </div>
+        <div class="detail-meta-item">
+          <div><div class="meta-label">LP баллы</div><div class="meta-value lp-val" id="detailLP"></div></div>
+        </div>
+      </div>
+      <div class="detail-description" id="detailDesc"></div>
+    </div>
+  </div>
+</div>
+
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav">
+  <div class="nav-item active" onclick="switchPage('pageCatalog', this)">
+    <div class="nav-icon">🛒</div>
+    <div class="nav-label">Каталог</div>
+  </div>
+  <div class="nav-item" onclick="switchPage('pageNotifications', this)">
+    <div class="nav-icon">🔔</div>
+    <div class="nav-label">Уведомления</div>
+    <div class="nav-badge" id="notifBadge" style="display:none">0</div>
+  </div>
+  <div class="nav-item" onclick="switchPage('pageInfo', this)">
+    <div class="nav-icon">ℹ️</div>
+    <div class="nav-label">О системе</div>
+  </div>
+</nav>
+
+<script>
+// ===== CONFIGURATION =====
+const USER_ID = "000000004";
+const STORAGE_KEY = "tf_worker_url";
+
+let WORKER_URL = localStorage.getItem(STORAGE_KEY) || "";
+let productsData = [];
+let notifsData = { new: [], old: [] };
+let categories = [];
+
+// ===== INIT =====
+document.addEventListener("DOMContentLoaded", () => {
+  if (!WORKER_URL) {
+    document.getElementById("configBanner").style.display = "flex";
+  }
+  loadAll();
+});
+
+function saveWorkerUrl() {
+  let url = document.getElementById("workerUrlInput").value.trim();
+  if (!url) return;
+  if (!url.startsWith("http")) url = "https://" + url;
+  url = url.replace(/\/+$/, "");
+  WORKER_URL = url;
+  localStorage.setItem(STORAGE_KEY, url);
+  document.getElementById("configBanner").style.display = "none";
+  loadAll();
+}
+
+// ===== API CALLS =====
+async function apiCall(endpoint) {
+  if (!WORKER_URL) throw new Error("Worker URL не настроен");
+  const resp = await fetch(WORKER_URL + endpoint);
+  if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+  return await resp.json();
+}
+
+async function loadAll() {
+  if (!WORKER_URL) {
+    setStatus("off");
+    return;
+  }
+  setStatus("loading");
+  await Promise.all([loadProducts(), loadNotifications()]);
+}
+
+// ===== PRODUCTS =====
+async function loadProducts() {
+  const el = document.getElementById("catalogContent");
+  try {
+    const data = await apiCall(`/products/getList?userId=${USER_ID}`);
+    if (data.isError) throw new Error(data.error || "Ошибка API");
+    productsData = data.products || [];
+    
+    // Extract categories
+    const catMap = new Map();
+    productsData.forEach(p => {
+      if (p.categoryName && !catMap.has(p.categoryId)) {
+        catMap.set(p.categoryId, p.categoryName);
+      }
+    });
+    categories = Array.from(catMap, ([id, name]) => ({ id, name }));
+    
+    renderFilters();
+    renderProducts(productsData);
+    setStatus("on");
+    
+    // Update stats
+    document.getElementById("statProducts").textContent = productsData.length;
+    document.getElementById("statCategories").textContent = categories.length;
+    document.getElementById("apiInfo").innerHTML = 
+      `✅ Подключено к API<br>Worker: <code style="font-family:JetBrains Mono;font-size:0.75rem;color:var(--accent)">${WORKER_URL}</code><br>Товаров загружено: ${productsData.length}`;
+  } catch (err) {
+    el.innerHTML = `<div class="error-block">Ошибка загрузки каталога: ${err.message}<br><button class="retry-btn" onclick="loadProducts()">Повторить</button></div>`;
+    setStatus("off");
+    document.getElementById("apiInfo").textContent = `❌ Ошибка: ${err.message}`;
+  }
+}
+
+function renderFilters() {
+  const bar = document.getElementById("filterBar");
+  if (categories.length <= 1) { bar.innerHTML = ""; return; }
+  
+  let html = `<div class="filter-chip active" onclick="filterProducts(null, this)">Все</div>`;
+  categories.forEach(c => {
+    html += `<div class="filter-chip" onclick="filterProducts('${c.id}', this)">${c.name}</div>`;
+  });
+  bar.innerHTML = html;
+}
+
+function filterProducts(catId, chipEl) {
+  document.querySelectorAll(".filter-chip").forEach(c => c.classList.remove("active"));
+  chipEl.classList.add("active");
+  
+  const filtered = catId ? productsData.filter(p => p.categoryId === catId) : productsData;
+  renderProducts(filtered);
+}
+
+function renderProducts(products) {
+  const el = document.getElementById("catalogContent");
+  if (!products.length) {
+    el.innerHTML = `<div class="empty-state"><div class="empty-icon">📦</div><div class="empty-text">Товары не найдены</div></div>`;
+    return;
+  }
+  
+  let html = `<div class="product-grid">`;
+  products.forEach((p, i) => {
+    const imgHtml = p.image 
+      ? `<img src="data:image/jpeg;base64,${p.image}" alt="${esc(p.productName)}" loading="lazy">`
+      : `<div class="img-placeholder">📦</div>`;
+    
+    const price = formatPrice(p.price);
+    
+    html += `
+      <div class="product-card" onclick="openDetail(${i})" style="animation-delay:${i * 0.05}s">
+        <div class="card-img">
+          ${imgHtml}
+          ${p.LP ? `<div class="card-lp">${p.LP} LP</div>` : ''}
+        </div>
+        <div class="card-body">
+          <div class="card-category">${esc(p.categoryName || '')}</div>
+          <div class="card-name">${esc(p.productName)}</div>
+          <div class="card-price">${price}<span class="currency"> ₽</span></div>
+        </div>
+      </div>`;
+  });
+  html += `</div>`;
+  el.innerHTML = html;
+}
+
+// ===== PRODUCT DETAIL =====
+function openDetail(index) {
+  const p = productsData[index];
+  if (!p) return;
+  
+  const imgEl = document.getElementById("detailImg");
+  imgEl.innerHTML = p.image 
+    ? `<img src="data:image/jpeg;base64,${p.image}" alt="${esc(p.productName)}">`
+    : `<div class="img-placeholder" style="font-size:4rem;opacity:0.15">📦</div>`;
+  
+  document.getElementById("detailCategory").textContent = p.categoryName || "";
+  document.getElementById("detailName").textContent = p.productName;
+  document.getElementById("detailPrice").textContent = formatPrice(p.price) + " ₽";
+  document.getElementById("detailLP").textContent = (p.LP || 0) + " LP";
+  
+  // Clean and render description HTML
+  const desc = document.getElementById("detailDesc");
+  if (p.description) {
+    desc.innerHTML = cleanHtml(p.description);
+  } else {
+    desc.textContent = "Описание отсутствует";
+  }
+  
+  document.getElementById("detailOverlay").classList.add("open");
+  document.body.style.overflow = "hidden";
+}
+
+function closeDetail() {
+  document.getElementById("detailOverlay").classList.remove("open");
+  document.body.style.overflow = "";
+}
+
+// ===== NOTIFICATIONS =====
+async function loadNotifications() {
+  const el = document.getElementById("notifContent");
+  try {
+    const data = await apiCall(`/notifications/getList?userId=${USER_ID}`);
+    if (data.isError) throw new Error(data.error || "Ошибка API");
+    
+    notifsData = data.notifications || { new: [], old: [] };
+    const newCount = (notifsData.new || []).length;
+    const totalCount = newCount + (notifsData.old || []).length;
+    
+    // Badge
+    const badge = document.getElementById("notifBadge");
+    if (newCount > 0) {
+      badge.textContent = newCount;
+      badge.style.display = "flex";
+    } else {
+      badge.style.display = "none";
+    }
+    
+    document.getElementById("notifSubtitle").textContent = 
+      newCount > 0 ? `${newCount} новых из ${totalCount}` : `Всего: ${totalCount}`;
+    document.getElementById("statNotifs").textContent = totalCount;
+    
+    renderNotifications();
+  } catch (err) {
+    el.innerHTML = `<div class="error-block">Ошибка загрузки уведомлений: ${err.message}<br><button class="retry-btn" onclick="loadNotifications()">Повторить</button></div>`;
+  }
+}
+
+function renderNotifications() {
+  const el = document.getElementById("notifContent");
+  const allNew = notifsData.new || [];
+  const allOld = notifsData.old || [];
+  
+  if (!allNew.length && !allOld.length) {
+    el.innerHTML = `<div class="empty-state"><div class="empty-icon">🔔</div><div class="empty-text">Нет уведомлений</div></div>`;
+    return;
+  }
+  
+  let html = `<div class="notif-list">`;
+  
+  if (allNew.length) {
+    html += `<div class="notif-section-title">Новые</div>`;
+    allNew.forEach(n => { html += renderNotifItem(n, true); });
+  }
+  if (allOld.length) {
+    html += `<div class="notif-section-title">Прочитанные</div>`;
+    allOld.forEach(n => { html += renderNotifItem(n, false); });
+  }
+  
+  html += `</div>`;
+  el.innerHTML = html;
+}
+
+function renderNotifItem(n, isNew) {
+  const type = n.type || "";
+  let icon = "📋", iconClass = "other";
+  
+  if (type.includes("Поступление") || type.includes("ДС")) { icon = "💰"; iconClass = "money"; }
+  else if (type.includes("Новость") || type.includes("News")) { icon = "📰"; iconClass = "news"; }
+  else if (type.includes("Система") || type.includes("System")) { icon = "⚙️"; iconClass = "system"; }
+  else if (type.includes("Заказ") || type.includes("Order")) { icon = "📦"; iconClass = "system"; }
+  
+  return `
+    <div class="notif-item ${isNew ? 'new' : ''}">
+      <div class="notif-icon ${iconClass}">${icon}</div>
+      <div class="notif-content">
+        <div class="notif-text">${esc(n.name || "Без текста")}</div>
+        <div class="notif-type">${esc(type)}</div>
+      </div>
+    </div>`;
+}
+
+// ===== NAVIGATION =====
+function switchPage(pageId, navItem) {
+  document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+  document.querySelectorAll(".nav-item").forEach(n => n.classList.remove("active"));
+  document.getElementById(pageId).classList.add("active");
+  navItem.classList.add("active");
+}
+
+// ===== HELPERS =====
+function setStatus(state) {
+  const dot = document.getElementById("statusDot");
+  if (state === "on") {
+    dot.style.background = "var(--accent-green)";
+    dot.style.boxShadow = "0 0 8px rgba(34,197,94,0.5)";
+  } else if (state === "off") {
+    dot.style.background = "var(--accent-red)";
+    dot.style.boxShadow = "0 0 8px rgba(239,68,68,0.5)";
+  } else {
+    dot.style.background = "var(--accent-warm)";
+    dot.style.boxShadow = "0 0 8px rgba(245,158,11,0.5)";
+  }
+}
+
+function formatPrice(p) {
+  const num = parseFloat(p);
+  if (isNaN(num)) return p;
+  return num.toLocaleString("ru-RU", { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+}
+
+function esc(str) {
+  if (!str) return "";
+  const d = document.createElement("div");
+  d.textContent = str;
+  return d.innerHTML;
+}
+
+function cleanHtml(html) {
+  // Remove MSO/Word specific tags, keep basic formatting
+  let clean = html
+    .replace(/<o:p><\/o:p>/gi, "")
+    .replace(/<p class="MsoNormal">/gi, "<p>")
+    .replace(/style="[^"]*caret-color[^"]*"/gi, "")
+    .replace(/\s+style=""/g, "");
+  return clean;
+}
+
+// Close detail on Escape
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape") closeDetail();
+});
+</script>
+</body>
+</html>
